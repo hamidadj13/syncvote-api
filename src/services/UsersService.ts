@@ -128,7 +128,7 @@ export class UsersService {
 
                 return {
                     status: 200,
-                    message: 'User logged sucessfully',
+                    message: 'User logged successfully',
                     data: {
                         user: {
                             ...formattedUser

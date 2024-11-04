@@ -31,20 +31,20 @@ app.use(
     })
 );
 
-const startRedis= async () => {
-    try {
-        await redisClient.connect();
+// const startRedis= async () => {
+//     try {
+//         await redisClient.connect();
 
-        const pong = await redisClient.ping();
+//         const pong = await redisClient.ping();
 
-        console.log('Redis server: ',pong)
+//         console.log('Redis server: ',pong)
 
-    } catch (error) {
-        console.error('Error with redis ' , error)
-    }
-}
+//     } catch (error) {
+//         console.error('Error with redis ' , error)
+//     }
+// }
 
-startRedis();
+// startRedis();
 
 
 const { usersRoute, postsRoute } = initializeRoutes(db, redisClient);

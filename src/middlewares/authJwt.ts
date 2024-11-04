@@ -13,7 +13,7 @@ const verifyToken = (req: Request, res: Response, next:NextFunction) => {
         if (!token) {
             return res.status(401).json({
                 status: 401,
-                message: 'Unauthorizeddd!!',
+                message: 'Unauthorized!!',
             });
         }
 
@@ -35,7 +35,7 @@ const verifyToken = (req: Request, res: Response, next:NextFunction) => {
     } catch (e) {
         return res.status(401).json({ 
             status: 401,
-            message: 'Something went wrong !!',
+            message: 'Something went wrong !!' +  e,
         });
     }
 };

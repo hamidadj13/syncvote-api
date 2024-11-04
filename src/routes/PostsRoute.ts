@@ -17,8 +17,23 @@ export class PostsRoute {
 
         router.get('/posts', this.postsController.getPosts.bind(this.postsController));
 
-         // Route accessible à tous pour obtenir un post par ID
-         router.get('/posts/:id', this.postsController.getPostById.bind(this.postsController));
+        // Route accessible à tous pour obtenir un post par ID
+        router.get('/posts/:id', this.postsController.getPostById.bind(this.postsController));
+
+        // Route pour mettre à jour un post - uniquement admin ou créateur
+        router.put('/posts/:id', authJwt.verifyToken, this.postsController.updatePost.bind(this.postsController));
+
+        // Route pour supprimer un post - uniquement admin ou créateur
+        router.delete('/posts/:id', authJwt.verifyToken, this.postsController.deletePost.bind(this.postsController));
+
+        // Route pour récupérer tous les posts d'un utilisateur - accessible à tous
+        router.get('/users/:userId/posts', this.postsController.getPostsByUserId.bind(this.postsController));
+
+        // Route pour récupérer tous les posts d'une catégorie - accessible à tous
+        router.get('/filter-posts', this.postsController.getPostsByCategory.bind(this.postsController));
+
+
+
 
 
         router.get('/categories', this.postsController.getCategories.bind(this.postsController));

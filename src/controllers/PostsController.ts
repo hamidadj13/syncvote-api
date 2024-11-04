@@ -49,6 +49,7 @@ export class PostsController {
 
         response.status(postsResponse.status).send({
             ...postsResponse,
+            author: postsResponse.data?.creatdBy
         });
         } catch (error) {
         response.status(500).json({
@@ -63,6 +64,101 @@ export class PostsController {
         try {
             const postId = request.params.id;
             const postResponse = await this.postsService.getPostById(postId);
+
+            response.status(postResponse.status).json({
+                ...postResponse,
+            });
+        } catch (error) {
+            response.status(500).json({
+                status: 500,
+                message: 'Internal server error',
+                data: error,
+            });
+        }
+    }
+
+    async updatePost(request: Request, response: Response): Promise<void> {
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            response.status(400).json({
+                status: 400,
+                message: 'Bad Request',
+                data: errors.array(),
+            });
+            return;
+        }
+
+        try {
+            const postId = request.params.id;
+            const userId = request.userId as string; // L'ID de l'utilisateur connecté
+            const userRole = request.userRole as string; // Le rôle de l'utilisateur connecté
+            const updatedData = request.body;
+
+            const postResponse = await this.postsService.updatePost(postId, userId, userRole, updatedData);
+
+            response.status(postResponse.status).json({
+                ...postResponse,
+            });
+        } catch (error) {
+            response.status(500).json({
+                status: 500,
+                message: 'Internal server error',
+                data: error,
+            });
+        }
+    }
+
+    async deletePost(request: Request, response: Response): Promise<void> {
+        try {
+            const postId = request.params.id;
+            const userId = request.userId as string; // L'ID de l'utilisateur connecté
+            const userRole = request.userRole as string; // Le rôle de l'utilisateur connecté
+
+            const postResponse = await this.postsService.deletePost(postId, userId, userRole);
+
+            response.status(postResponse.status).json({
+                ...postResponse,
+            });
+        } catch (error) {
+            response.status(500).json({
+                status: 500,
+                message: 'Internal server error',
+                data: error,
+            });
+        }
+    }
+
+    async getPostsByUserId(request: Request, response: Response): Promise<void> {
+        try {
+            const userId = request.params.userId;
+
+            const postResponse = await this.postsService.getPostsByUserId(userId);
+
+            response.status(postResponse.status).json({
+                ...postResponse,
+            });
+        } catch (error) {
+            response.status(500).json({
+                status: 500,
+                message: 'Internal server error',
+                data: error,
+            });
+        }
+    }
+
+    async getPostsByCategory(request: Request, response: Response): Promise<void> {
+        try {
+            const category = request.query.category as string;
+
+            if (!category) {
+                response.status(400).json({
+                    status: 400,
+                    message: 'Bad Request: category parameter is required.',
+                });
+                return;
+            }
+
+            const postResponse = await this.postsService.getPostsByCategory(category);
 
             response.status(postResponse.status).json({
                 ...postResponse,
