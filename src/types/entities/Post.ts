@@ -4,7 +4,8 @@ export interface  Post {
     id?: string;
     title?: string;
     description?: string;
-    voteCount?: number;
+    totalLike?: number;
+    totalDislike?: number;
     categories?: string[];
     createdBy?: string
     createdAt?: Timestamp | Date;

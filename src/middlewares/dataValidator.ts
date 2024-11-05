@@ -85,8 +85,6 @@ export const validateCreatePost = [
         .withMessage(`Invalid category provided. Please select a valid category from the following list: ${validCategoryKeys.join(', ')}`)
 ]; 
 
-
-
 export const validateUpdatePost = [
     check('title')
         .optional()
@@ -127,4 +125,14 @@ export const validateCreateComment = [
 
 export const validateUpdateComment = [
     body('content').notEmpty().withMessage('Content is required'),
+];
+
+//---------------------------------------------------------------------------
+
+export const validateVote = [
+    check('voteType')
+        .notEmpty()
+        .withMessage('The voteType is required')
+        .isIn(['like', 'dislike'])
+        .withMessage('Vote type must be either like or dislike'),
 ];

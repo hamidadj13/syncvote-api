@@ -93,7 +93,6 @@ export class PostsController {
 
         try {
 
-
             const postId = request.params.id;
             const userId = request.userId as string;
             const userRole = request.userRole as string;

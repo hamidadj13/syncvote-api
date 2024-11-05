@@ -4,6 +4,7 @@ import { getFirestore, FirestoreDataConverter, Timestamp } from 'firebase-admin/
 import { User } from '../types/entities/User';
 import { Post } from '../types/entities/Post';
 import { Comment } from '../types/entities/Comment';
+import { Vote } from '../types/entities/Vote';
 
 import { FirestoreCollections } from '../types/firestore';
 
@@ -33,6 +34,7 @@ const db: FirestoreCollections = { // Firestore collections
   users: dataPoint<User>('users'),
   posts: dataPoint<Post>('posts'),
   comments: dataPoint<Comment>('comments'),
+  votes: dataPoint<Vote>('votes')
 };
 
 export { db, firestore, firestoreTimestamp };
