@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { PostsController } from '../controllers';
-import { validateCreatePost } from '../middlewares/dataValidator';
+import { validateCreatePost, validateUpdatePost } from '../middlewares/dataValidator';
 import   authJwt from "../middlewares/authJwt";
 
 export class PostsRoute {
@@ -21,7 +21,7 @@ export class PostsRoute {
         router.get('/posts/:id', this.postsController.getPostById.bind(this.postsController));
 
         // Route pour mettre à jour un post - uniquement admin ou créateur
-        router.put('/posts/:id', authJwt.verifyToken, this.postsController.updatePost.bind(this.postsController));
+        router.put('/posts/:id', authJwt.verifyToken, validateUpdatePost, this.postsController.updatePost.bind(this.postsController));
 
         // Route pour supprimer un post - uniquement admin ou créateur
         router.delete('/posts/:id', authJwt.verifyToken, this.postsController.deletePost.bind(this.postsController));

@@ -4,8 +4,10 @@ import DocumentData = firestore.DocumentData;
 
 import { User } from './entities/User';
 import { Post } from './entities/Post';
+import { Comment } from './entities/Comment';
 
 export interface FirestoreCollections {
+    comments: CollectionReference<Comment, DocumentData>;
     users: CollectionReference<User, DocumentData>;
     posts: CollectionReference<Post, DocumentData>;
 }

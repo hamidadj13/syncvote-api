@@ -29,7 +29,7 @@ export class UsersRoute {
         router.put('/users/:id', authJwt.verifyToken, validateUpdateUser, this.userController.updateUserByAdmin.bind(this.userController));
 
         // Route PUT pour mettre à jour un utilisateur, accessible uniquement aux utilisateurs connectés
-        router.put('/users/me', authJwt.verifyToken, validateUpdateUser, this.userController.updateUserByConnectUser.bind(this.userController));
+        router.put('/user/me', authJwt.verifyToken, validateUpdateUser, this.userController.updateUserByConnectUser.bind(this.userController));
 
         // Route DELETE pour supprimer un utilisateur (admin uniquement)
         router.delete('/users/:id', authJwt.verifyToken, this.userController.deleteUser.bind(this.userController));
@@ -39,5 +39,5 @@ export class UsersRoute {
 
 
         return router;
-    } 
+    }
 }

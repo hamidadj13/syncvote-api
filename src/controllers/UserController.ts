@@ -123,34 +123,25 @@ export class UserController {
             });
             
         }
-        const userRole = request.userRole;
-
-        if (userRole != "admin") {
-            response.status(401).json({
-                status: 401,
-                message: 'Please login with an admin account to make this action !!',
-            });
-        }
-
-        const email = request.body.email;
-        const username = request.body.username;
-        const role = request.body.role;
-
-        if (!email && !username && !role) {
-            response.status(400).json({
-                status: 400,
-                message: 'Please enter at least one valid field to update !!',
-            });
-        } 
-       
     
         try {
-            const userId = request.params.id;
+            const userId = request.userId as string;
 
+            const { email, username, role } = request.body;
+            const updateData: { email?: string; username?: string, role?: 'member' | 'admin' } = {};
 
-            const userData = request.body
+            if (email) updateData.email = email;
+            if (username) updateData.username = username;
+            if (role) updateData.role = role;
+
+            if (Object.keys(updateData).length === 0) {
+                response.status(400).json({
+                    status: 400,
+                    message: 'Please provide at least one field to update!',
+                });
+            }
                 
-            const userResponse = await this.usersServices.updateUser(userId, userData);
+            const userResponse = await this.usersServices.updateUser(userId, updateData);
 
             response.status(userResponse.status).send({
                 ...userResponse
@@ -176,23 +167,24 @@ export class UserController {
             });
             
         }
-        const email = request.body.email;
-        const username = request.body.username;
-
-        if (!email && !username) {
-            response.status(400).json({
-                status: 400,
-                message: 'Please enter at least one valid field to update !!',
-            });
-        } 
-    
+        
         try {
             const userId = request.userId as string;
 
+            const { email, username } = request.body;
+            const updateData: { email?: string; username?: string } = {};
 
-            const userData = request.body
+            if (email) updateData.email = email;
+            if (username) updateData.username = username;
+
+            if (Object.keys(updateData).length === 0) {
+                response.status(400).json({
+                    status: 400,
+                    message: 'Please provide at least one field to update!',
+                });
+            }
                 
-            const userResponse = await this.usersServices.updateUser(userId, userData);
+            const userResponse = await this.usersServices.updateUser(userId, updateData);
 
             response.status(userResponse.status).send({
                 ...userResponse

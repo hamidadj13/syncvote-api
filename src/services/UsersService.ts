@@ -53,17 +53,17 @@ export class UsersService {
     }
 
     async getUsers(): Promise<IResBody> {
-      
-        const cacheKey = 'users';
+    
+        //const cacheKey = 'users';
 
         let users: User[] = [];
 
-        const cacheUsers = await this.redisClient.get(cacheKey);
+       /*const cacheUsers = await this.redisClient.get(cacheKey);
 
         if (cacheUsers) {
             users = JSON.parse(cacheUsers);
 
-        } else {
+        } else {*/
             const usersQuerySnapshot = await this.db.users.get();
 
             for (const doc of usersQuerySnapshot.docs) {
@@ -73,14 +73,14 @@ export class UsersService {
                     id: doc.id,
                     ...formattedUser,
                 });
-            }   
-        }
+            }
+        //}
 
         
 
-        await this.redisClient.set(cacheKey, JSON.stringify(users), {
+        /*await this.redisClient.set(cacheKey, JSON.stringify(users), {
             EX: 60
-        })
+        })*/
 
         return {
             status: 200,
@@ -150,7 +150,6 @@ export class UsersService {
         const userRef = this.db.users.doc(userId);
         const userDoc = await userRef.get();
 
-        // Vérification de l'existence de l'utilisateur
         if (!userDoc.exists) {
             return {
                 status: 404,
@@ -158,7 +157,6 @@ export class UsersService {
             };
         }
 
-        // Mise à jour des informations de l'utilisateur
         const dataToUpdate = {
             ...updatedData,
             updatedAt: firestoreTimestamp.now(),
@@ -167,8 +165,8 @@ export class UsersService {
         await userRef.update(dataToUpdate);
 
         // Rafraîchissement du cache Redis pour la clé 'users'
-        const usersCacheKey = 'users';
-        await this.redisClient.del(usersCacheKey);
+        //const usersCacheKey = 'users';
+        //await this.redisClient.del(usersCacheKey);
 
         return {
             status: 200,

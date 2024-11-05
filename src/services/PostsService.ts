@@ -1,9 +1,10 @@
 import { Post } from '../types/entities/Post';
+
 import { FirestoreCollections } from '../types/firestore';
+
 import { IResBody } from '../types/api';
 
 import { firestoreTimestamp } from '../utils/firestore-helpers';
-import { Timestamp } from 'firebase/firestore';
 
 import { categories } from '../constants/categories';
 
@@ -51,7 +52,6 @@ export class PostsService {
         };
     }
 
-
     async getPostById(postId: string): Promise<IResBody> {
         try {
             const postSnapshot = await this.db.posts.doc(postId).get();
@@ -64,19 +64,19 @@ export class PostsService {
             }
 
             const post = postSnapshot.data() as Post;
-            const postAuthor = post.createdBy as string;  // assuming each post has an author field for the author
+            const postAuthor = post.createdBy as string;
 
             // Fetch the user associated with this post
             const userSnapshot = await this.db.users.doc(postAuthor).get();
-            // if (!userSnapshot.exists) {
-            //     return {
-            //         status: 404,
-            //         message: 'User not found!',
-            //     };
-            // }
+            if (!userSnapshot.exists) {
+                return {
+                    status: 404,
+                    message: 'User not found!',
+                };
+            }
 
             const user = userSnapshot.data();
-            const username = user?.username || 'Unknown';  // Get the username or set a default
+            const username = user?.username || 'Unknown';
 
             const formattedPost = formatPostData(post);
 
@@ -175,7 +175,6 @@ export class PostsService {
         }
     }
 
-    // Nouvelle méthode pour récupérer les posts d'un utilisateur
     async getPostsByUserId(userId: string): Promise<IResBody> {
         try {
             const postsQuerySnapshot = await this.db.posts.where('createdBy', '==', userId).get();

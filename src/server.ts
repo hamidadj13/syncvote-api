@@ -47,10 +47,11 @@ app.use(
 // startRedis();
 
 
-const { usersRoute, postsRoute } = initializeRoutes(db, redisClient);
+const { usersRoute, postsRoute, commentsRoute } = initializeRoutes(db, redisClient);
 
 app.use(usersRoute.createRouter());
 app.use(postsRoute.createRouter());
+app.use(commentsRoute.createRouter());
 
 app.use((req, res) => {
     res.status(404).json({ message: 'Route not found' });

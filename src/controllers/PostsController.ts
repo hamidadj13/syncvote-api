@@ -78,7 +78,9 @@ export class PostsController {
     }
 
     async updatePost(request: Request, response: Response): Promise<void> {
+
         const errors = validationResult(request);
+
         if (!errors.isEmpty()) {
             response.status(400).json({
                 status: 400,
@@ -88,10 +90,21 @@ export class PostsController {
             return;
         }
 
+        const title = request.body.title;
+        const description = request.body.description;
+        const categories = request.body.categories;
+
+        if (!title && !description && !categories) {
+            response.status(400).json({
+                status: 400,
+                message: 'Please enter at least one valid field to update !!',
+            });
+        } 
+
         try {
             const postId = request.params.id;
-            const userId = request.userId as string; // L'ID de l'utilisateur connecté
-            const userRole = request.userRole as string; // Le rôle de l'utilisateur connecté
+            const userId = request.userId as string; 
+            const userRole = request.userRole as string; 
             const updatedData = request.body;
 
             const postResponse = await this.postsService.updatePost(postId, userId, userRole, updatedData);
