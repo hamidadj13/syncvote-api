@@ -1,4 +1,5 @@
 import { body, check, ValidationChain } from 'express-validator';
+import { categories } from '../constants/categories';
 
 export const validateCreateUser = [
     body('email').isEmail().withMessage('Email is required'),
@@ -48,6 +49,9 @@ export const validateUpdateUser = [
 
 //---------------------------------------------------------------------------
 
+// Liste des catégories valides pour comparaison
+const validCategoryKeys = categories.map((category) => category.key);
+
 export const validateCreatePost = [
     body('title')
         .notEmpty()
@@ -61,38 +65,58 @@ export const validateCreatePost = [
         .isString()
         .withMessage('Description must be a string'),
 
-    body('categories')
+        check('categories')
+        .optional()
         .isArray({ min: 1 })
-        .withMessage('At least one category is required')
-        .custom((categories) =>
-            categories.every((category: string) => typeof category === 'string')
-        )
-        .withMessage('All categories must be strings'),
-]; 
+        .withMessage("Category should be an array of strings !!")
+        .custom((categoryArray) => {
 
-export const validateUpdatePost = [
-    check('email')
-        .optional()
-        .isEmail()
-        .withMessage("Email format is invalid !!"),
-
-    check('username')
-        .optional()
-        .isString()
-        .isLength({ min: 3 })
-        .withMessage("Username must contain at least 3 characters !!"),
-
-    check('role')
-        .optional()
-        .custom((value, { req }) => {
-            if (req.user.role !== 'admin') {
-                throw new Error("Only admins can update the role !!");
+            // Vérifier si c'est bien un tableau de chaînes
+            if (!Array.isArray(categoryArray) || !categoryArray.every(item => typeof item === 'string')) {
+                throw new Error("Category should be an array of strings !!");
             }
-            if (!['member', 'admin'].includes(value)) {
-                throw new Error("Le rôle doit être 'member' ou 'admin'");
+            // Vérifier la validité de chaque catégorie
+            const isValid = categoryArray.every((category) => validCategoryKeys.includes(category));
+            if (!isValid) {
+                throw new Error(`Invalid category provided. Please select a valid category from the following list: ${validCategoryKeys.join(', ')}`);
             }
             return true;
         })
+        .withMessage(`Invalid category provided. Please select a valid category from the following list: ${validCategoryKeys.join(', ')}`)
+]; 
+
+
+
+export const validateUpdatePost = [
+    check('title')
+        .optional()
+        .isString()
+        .withMessage("Title format is invalid !!"),
+
+    check('description')
+        .optional()
+        .isString()
+        .isLength({ min: 3 })
+        .withMessage("Description must contain at least 3 characters !!"),
+
+    check('categories')
+        .optional()
+        .isArray({ min: 1 })
+        .withMessage("Category should be an array of strings !!")
+        .custom((categoryArray) => {
+
+            // Vérifier si c'est bien un tableau de chaînes
+            if (!Array.isArray(categoryArray) || !categoryArray.every(item => typeof item === 'string')) {
+                throw new Error("Category should be an array of strings !!");
+            }
+            // Vérifier la validité de chaque catégorie
+            const isValid = categoryArray.every((category) => validCategoryKeys.includes(category));
+            if (!isValid) {
+                throw new Error(`Invalid category provided. Please select a valid category from the following list: ${validCategoryKeys.join(', ')}`);
+            }
+            return true;
+        })
+        .withMessage(`Invalid category provided. Please select a valid category from the following list: ${validCategoryKeys.join(', ')}`)
 ] as ValidationChain[];
 
 //---------------------------------------------------------------------------

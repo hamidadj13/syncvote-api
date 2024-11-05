@@ -87,27 +87,32 @@ export class PostsController {
                 message: 'Bad Request',
                 data: errors.array(),
             });
-            return;
         }
 
-        const title = request.body.title;
-        const description = request.body.description;
-        const categories = request.body.categories;
-
-        if (!title && !description && !categories) {
-            response.status(400).json({
-                status: 400,
-                message: 'Please enter at least one valid field to update !!',
-            });
-        } 
+        
 
         try {
-            const postId = request.params.id;
-            const userId = request.userId as string; 
-            const userRole = request.userRole as string; 
-            const updatedData = request.body;
 
-            const postResponse = await this.postsService.updatePost(postId, userId, userRole, updatedData);
+
+            const postId = request.params.id;
+            const userId = request.userId as string;
+            const userRole = request.userRole as string;
+
+            const { title, description, categories } = request.body;
+            const updateData: { title?: string; description?: string, categories?: string[] } = {};
+
+            if (title) updateData.title = title;
+            if (description) updateData.description = description;
+            if (categories) updateData.categories = categories;
+
+            if (Object.keys(updateData).length === 0) {
+                response.status(400).json({
+                    status: 400,
+                    message: 'Please provide at least one field to update!',
+                });
+            }
+
+            const postResponse = await this.postsService.updatePost(postId, userId, userRole, updateData);
 
             response.status(postResponse.status).json({
                 ...postResponse,
