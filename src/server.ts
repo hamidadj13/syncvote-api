@@ -1,14 +1,15 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import * as _dotenv from 'dotenv';
 import cors from 'cors';
 import http from 'http';
 import morgan from 'morgan';
-  
+import { swaggerUi, swaggerDocs } from './utils/swagger'; // Import Swagger
+
 _dotenv.config();
 
 import { initializeRoutes } from './initializeRoutes';
 import { db } from './utils/firestore-helpers';
-import { client as redisClient} from './utils/redis-client';
+import { client as redisClient } from './utils/redis-client';
 
 if (!process.env.PORT) {
     console.log('No port value specified, default port will be chosen...');
@@ -31,22 +32,10 @@ app.use(
     })
 );
 
-// const startRedis= async () => {
-//     try {
-//         await redisClient.connect();
+// Ajouter la route Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-//         const pong = await redisClient.ping();
-
-//         console.log('Redis server: ',pong)
-
-//     } catch (error) {
-//         console.error('Error with redis ' , error)
-//     }
-// }
-
-// startRedis();
-
-
+// Initialisation des routes
 const { usersRoute, postsRoute, commentsRoute, votesRoute } = initializeRoutes(db, redisClient);
 
 app.use(usersRoute.createRouter());
@@ -58,7 +47,8 @@ app.use((req, res) => {
     res.status(404).json({ message: 'Route not found' });
 });
 
-app.use((err: Error, req: Request, res: Response) => {
+// Middleware d'erreur
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error('Error:', err.stack);
     res.status(500).json({ error: 'Internal server error' });
 });
@@ -66,6 +56,5 @@ app.use((err: Error, req: Request, res: Response) => {
 const server = http.createServer(app);
 server.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}/`);
+    console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
 });
-
-  
