@@ -32,6 +32,20 @@ app.use(
     })
 );
 
+const startRedis = async () => {
+        try {
+            await redisClient.connect();
+        
+            const pong = await redisClient.ping();
+            console.log('Redis server:', pong);
+    
+        } catch (error) {
+            console.error('Error with redis:', error);
+        }
+    };
+  
+    startRedis();
+
 // Ajouter la route Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 

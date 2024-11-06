@@ -6,11 +6,17 @@ import { firestoreTimestamp } from '../utils/firestore-helpers';
 
 import { IResBody } from '../types/api';
 
+import { formatCommentData } from '../utils/formatData';
+
+import { RedisClientType } from 'redis';
+
 export class CommentsService {
     private db: FirestoreCollections;
+    private redisClient: RedisClientType;
 
-    constructor(db: FirestoreCollections) {
+    constructor(db: FirestoreCollections, redisClient: RedisClientType) {
         this.db = db;
+        this.redisClient = redisClient;
     }
 
     async createComment(commentData: Comment): Promise<IResBody> {
@@ -34,12 +40,34 @@ export class CommentsService {
     }
 
     async getCommentsByPost(postId: string): Promise<IResBody> {
-        const commentsSnapshot = await this.db.comments.where('postId', '==', postId).get();
+        const cacheKey = 'comments';
 
-        const comments = commentsSnapshot.docs.map(doc => ({ 
-            id: doc.id, 
-            ...doc.data() 
-        } ));
+        let comments: Comment[] = [];
+
+        const cacheComments = await this.redisClient.get(cacheKey);
+
+        if (cacheComments) {
+            comments = JSON.parse(cacheComments);
+
+        } else {
+            const commentsSnapshot = await this.db.comments.where('postId', '==', postId).get();
+
+            for (const doc of commentsSnapshot.docs) {
+
+                const formattedComment = formatCommentData(doc.data())
+    
+                comments.push({
+                    id: doc.id,
+                    ...formattedComment,
+                });
+            }
+        }        
+
+        await this.redisClient.set(cacheKey, JSON.stringify(comments), {
+            EX: 60
+        })
+        
+        
 
         return { 
             status: 200, 

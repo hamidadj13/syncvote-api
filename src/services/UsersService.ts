@@ -54,16 +54,16 @@ export class UsersService {
 
     async getUsers(): Promise<IResBody> {
     
-        //const cacheKey = 'users';
+        const cacheKey = 'users';
 
         let users: User[] = [];
 
-       /*const cacheUsers = await this.redisClient.get(cacheKey);
+        const cacheUsers = await this.redisClient.get(cacheKey);
 
         if (cacheUsers) {
             users = JSON.parse(cacheUsers);
 
-        } else {*/
+        } else {
             const usersQuerySnapshot = await this.db.users.get();
 
             for (const doc of usersQuerySnapshot.docs) {
@@ -74,13 +74,11 @@ export class UsersService {
                     ...formattedUser,
                 });
             }
-        //}
+        }        
 
-        
-
-        /*await this.redisClient.set(cacheKey, JSON.stringify(users), {
+        await this.redisClient.set(cacheKey, JSON.stringify(users), {
             EX: 60
-        })*/
+        })
 
         return {
             status: 200,

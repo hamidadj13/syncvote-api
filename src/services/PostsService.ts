@@ -9,12 +9,15 @@ import { firestoreTimestamp } from '../utils/firestore-helpers';
 import { categories } from '../constants/categories';
 
 import { formatPostData } from '../utils/formatData';
+import { RedisClientType } from 'redis';
 
 export class PostsService {
     private db: FirestoreCollections;
+    private redisClient: RedisClientType;
 
-    constructor(db: FirestoreCollections) {
+    constructor(db: FirestoreCollections, redisClient: RedisClientType) {
         this.db = db;
+        this.redisClient = redisClient;
     }
 
     async createPost(postData: Post): Promise<IResBody> {
@@ -32,18 +35,36 @@ export class PostsService {
     }
 
     async getPosts(): Promise<IResBody> {
-        const posts: Post[] = [];
-        const postsQuerySnapshot = await this.db.posts.get();
 
-        for (const doc of postsQuerySnapshot.docs) {
-            const formattedPost = formatPostData(doc.data())
 
-            posts.push({
-                id: doc.id,
-                ...formattedPost,
-                
-            });
-        }   
+        const cacheKey = 'posts';
+
+        let posts: Post[] = [];
+
+        const cachePost = await this.redisClient.get(cacheKey);
+
+        if (cachePost) {
+            posts = JSON.parse(cachePost);
+
+        } else {
+            const postsQuerySnapshot = await this.db.posts.get();
+
+            for (const doc of postsQuerySnapshot.docs) {
+                const formattedPost = formatPostData(doc.data())
+
+                posts.push({
+                    id: doc.id,
+                    ...formattedPost,
+                    
+                });
+            }  
+        }        
+
+        await this.redisClient.set(cacheKey, JSON.stringify(posts), {
+            EX: 60
+        })
+        
+         
 
         return {
             status: 200,
